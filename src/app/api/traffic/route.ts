@@ -45,13 +45,31 @@ export async function POST(req: Request) {
     created_at: new Date().toISOString(),
   };
 
+  // 국가: Vercel 이 접속 IP 로 알려 주는 2글자 코드 (IP 자체는 저장하지 않는다)
+  const countryRaw = req.headers.get('x-vercel-ip-country');
+  const country = countryRaw && /^[A-Za-z]{2}$/.test(countryRaw) ? countryRaw.toUpperCase() : null;
+
+  // 이벤트: 일반 방문(기본) 또는 서비스로 넘어가는 클릭(exit)
+  const isExit = body.event === 'exit';
+  const target = isExit ? str(body.target, 20) : null;
+  if (isExit && !target) {
+    return NextResponse.json({ success: false, error: 'Invalid payload' }, { status: 400 });
+  }
+
   try {
     const db = getSupabaseAdmin();
+    const visitorId = str(body.visitorId, 100);
     let { error } = await db
       .from('kmarket_traffic_logs')
-      .insert([{ ...baseRow, visitor_id: str(body.visitorId, 100) }]);
+      .insert([{ ...baseRow, visitor_id: visitorId, country, event: isExit ? 'exit' : 'visit', target }]);
 
-    // visitor_id 컬럼이 아직 없는 DB 라면 ID 없이 다시 기록
+    // 국가·이벤트 컬럼이 아직 없는 DB: 일반 방문은 그 컬럼 없이 기록하고, 서비스 이동 클릭은 방문 수가 부풀지 않도록 기록하지 않는다
+    if (error && /country|event|target/i.test(error.message || '')) {
+      if (isExit) return NextResponse.json({ success: false, skipped: 'migration' });
+      ({ error } = await db.from('kmarket_traffic_logs').insert([{ ...baseRow, visitor_id: visitorId }]));
+    }
+
+    // visitor_id 컬럼도 아직 없는 DB 라면 ID 없이 다시 기록
     if (error && /visitor_id/i.test(error.message || '')) {
       ({ error } = await db.from('kmarket_traffic_logs').insert([baseRow]));
     }

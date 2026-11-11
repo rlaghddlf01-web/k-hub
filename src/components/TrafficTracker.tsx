@@ -2,11 +2,13 @@
 
 import { useEffect } from 'react';
 import { getVisitorId } from '@/lib/visitor';
+import { SERVICES } from '@/lib/services';
 
 // 방문 추적: 접속할 때 유입 채널(광고 태그·이전 주소)을 판별해 /api/traffic 으로 한 번 보낸다.
 // 채널 이름(key)은 K-Market 관리자 대시보드의 채널과 같아야 합니다.
 
 const SESSION_KEY = 'hub_last_visit_session';
+const CHANNEL_KEY = 'hub_visit_channel';
 const SESSION_GAP_MS = 10 * 60 * 1000; // 같은 탭에서 10분 안의 재방문은 다시 세지 않음
 
 type Channel = { key: string; name: string };
@@ -82,8 +84,55 @@ function detectChannel(params: URLSearchParams, utmSource: string, referrer: str
   return DIRECT;
 }
 
+/** 서비스 주소(origin) → 서비스 id. 허브에서 이 주소로 나가는 링크 클릭을 "서비스 이동"으로 기록한다 */
+const EXIT_TARGETS = SERVICES.map((s) => ({ id: s.id, origin: new URL(s.url).origin }));
+
+function readChannel(): Channel {
+  try {
+    const raw = sessionStorage.getItem(CHANNEL_KEY);
+    if (raw) return JSON.parse(raw) as Channel;
+  } catch {
+    // 저장소를 못 쓰면 직접 방문으로 취급
+  }
+  return DIRECT;
+}
+
 export default function TrafficTracker() {
+  // 서비스(마켓·세금환급·텔레콤)로 나가는 링크 클릭 기록: 어느 유입 채널에서 어느 서비스로 넘어갔는지 본다
   useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+      if (!a) return;
+      let origin = '';
+      try {
+        origin = new URL(a.href).origin;
+      } catch {
+        return;
+      }
+      const hit = EXIT_TARGETS.find((t) => t.origin === origin);
+      if (!hit) return;
+      const channel = readChannel();
+      const data = JSON.stringify({
+        event: 'exit',
+        target: hit.id,
+        channelKey: channel.key,
+        channelName: channel.name,
+        sourceUrl: window.location.href,
+        visitorId: getVisitorId(),
+      });
+      // 페이지를 떠나는 순간에도 전송되도록 sendBeacon 우선
+      const ok = navigator.sendBeacon?.('/api/traffic', new Blob([data], { type: 'application/json' }));
+      if (!ok) fetch('/api/traffic', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: data, keepalive: true }).catch(() => {});
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = (params.get('utm_source') || params.get('source') || params.get('ref') || '').toLowerCase();
+    const referrer = document.referrer ? document.referrer.toLowerCase() : '';
+
     try {
       const last = sessionStorage.getItem(SESSION_KEY);
       const now = Date.now();
@@ -93,10 +142,12 @@ export default function TrafficTracker() {
       // 저장소를 못 쓰면 매번 기록 (드물게 중복될 수 있음)
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const utmSource = (params.get('utm_source') || params.get('source') || params.get('ref') || '').toLowerCase();
-    const referrer = document.referrer ? document.referrer.toLowerCase() : '';
     const channel = detectChannel(params, utmSource, referrer);
+    try {
+      sessionStorage.setItem(CHANNEL_KEY, JSON.stringify(channel));
+    } catch {
+      // 무시
+    }
 
     fetch('/api/traffic', {
       method: 'POST',
