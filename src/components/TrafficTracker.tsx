@@ -129,6 +129,9 @@ export default function TrafficTracker() {
   }, []);
 
   useEffect(() => {
+    // 관리자 페이지 접속은 방문 통계에 넣지 않는다
+    if (window.location.pathname.startsWith('/admin')) return;
+
     const params = new URLSearchParams(window.location.search);
     const utmSource = (params.get('utm_source') || params.get('source') || params.get('ref') || '').toLowerCase();
     const referrer = document.referrer ? document.referrer.toLowerCase() : '';
