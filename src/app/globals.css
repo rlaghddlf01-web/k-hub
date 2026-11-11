@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b1022;
+  --bg2: #141a38;
+  --text: #f4f6ff;
+  --muted: #a9b0d0;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #25306b 0%, var(--bg) 55%) fixed, var(--bg);
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+button, a { touch-action: manipulation; }
+
+/* 글자가 이어지며 모양이 만들어지는 문자(크메르·미얀마·싱할라·네팔·벵골·우르두·태국)는 자간을 벌리면 글자가 갈라져 보인다.
+   작은 소제목의 넓은 자간(tracking-*)과 본문 기본 자간을 이 언어들에서는 끈다. (로고의 세리프 글자는 그대로) */
+body:is(:lang(km), :lang(my), :lang(si), :lang(ne), :lang(bn), :lang(ur), :lang(th)) {
+  letter-spacing: normal;
+}
+:is(:lang(km), :lang(my), :lang(si), :lang(ne), :lang(bn), :lang(ur), :lang(th)) [class*="tracking-"]:not(.serif) {
+  letter-spacing: normal;
+}
+
+/* 한국어는 단어 중간에서 줄이 바뀌지 않게 (예: "필요 / 한" 방지) */
+:lang(ko) h1, :lang(ko) h2, :lang(ko) h3, :lang(ko) p, :lang(ko) li, :lang(ko) summary, :lang(ko) span, :lang(ko) a {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+@keyframes floatY {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -10px; }
+}
+.float-a { animation: floatY 7s ease-in-out infinite; }
+.float-b { animation: floatY 8s ease-in-out -2s infinite; }
+.float-c { animation: floatY 9s ease-in-out -4s infinite; }
+
+/* 고급스러운 영문·숫자용 세리프 서체 (로고, 큰 숫자) */
+.serif { font-family: 'Cormorant Garamond', 'Times New Roman', Georgia, serif; letter-spacing: 0.02em; }
+
+/* 아주 옅은 질감: 배경이 밋밋해 보이지 않게 */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* 금속 느낌의 금색 글자 (로고 글자용): 위는 밝게, 가운데 금색, 아래는 진하게 */
+.gold-metal {
+  background: linear-gradient(180deg, #fff3c4 0%, #f6c443 38%, #b9780a 72%, #f7d774 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #fff1b8 0%, #f3ba2f 45%, #b9780a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
