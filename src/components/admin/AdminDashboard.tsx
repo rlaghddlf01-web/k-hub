@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { LANGS } from '@/lib/langs';
-import type { ChannelRow, Count, HubStats } from '@/lib/server/stats';
+import { PERIODS, type ChannelRow, type Count, type HubStats } from '@/lib/server/stats';
 import AdminActions from './AdminActions';
 
 const TARGET_NAMES: Record<string, string> = {
@@ -22,6 +22,7 @@ function countryLabel(code: string): string {
 }
 
 const n = (v: number) => v.toLocaleString('ko-KR');
+const pct = (part: number, whole: number) => (whole > 0 ? `${Math.round((part / whole) * 100)}%` : '-');
 
 function Card({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
   return (
@@ -60,9 +61,10 @@ function Table({ head, children }: { head: ReactNode; children: ReactNode }) {
 }
 
 export default function AdminDashboard({ stats }: { stats: HubStats }) {
-  const maxDay = Math.max(1, ...stats.days.map((d) => d.count));
-  const maxHour = Math.max(1, ...stats.hours);
+  const cur = PERIODS.find((p) => p.id === stats.period) ?? PERIODS[1];
+  const max = Math.max(1, ...stats.buckets.map((b) => b.count));
   const langName = (code: string) => LANGS.find((l) => l.code === code)?.name ?? code;
+  const dense = stats.buckets.length > 14; // 막대가 많으면 숫자·라벨을 듬성듬성 보여준다
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8 space-y-4">
@@ -74,6 +76,25 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
         <AdminActions />
       </header>
 
+      {/* 기간 선택: 일 / 주 / 월 / 년 — 아래 모든 숫자가 이 기간으로 바뀝니다 */}
+      <nav className="flex flex-wrap items-center gap-2" aria-label="기간">
+        {PERIODS.map((p) => (
+          <a
+            key={p.id}
+            href={`?p=${p.id}`}
+            aria-current={p.id === stats.period ? 'page' : undefined}
+            className={`rounded-xl px-5 py-2 text-sm font-black border transition-colors ${
+              p.id === stats.period
+                ? 'bg-amber-300 text-black border-amber-300'
+                : 'border-white/15 hover:bg-white/10'
+            }`}
+          >
+            {p.label}
+          </a>
+        ))}
+        <span className="text-xs text-[var(--muted)] ml-1">{cur.desc}</span>
+      </nav>
+
       {!stats.configured && <Empty>Supabase 환경변수가 없어 통계를 불러올 수 없습니다.</Empty>}
 
       {stats.configured && !stats.migrated && (
@@ -83,66 +104,53 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
       )}
       {stats.truncated && (
         <div className="rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-xs text-amber-200">
-          기록이 5만 건을 넘어 가장 최근 5만 건까지만 집계했습니다.
+          이 기간 기록이 5만 건을 넘어 가장 최근 5만 건까지만 집계했습니다.
         </div>
       )}
 
       {/* 요약 */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          ['오늘 방문', stats.today],
-          ['최근 7일', stats.week],
-          ['최근 4주', stats.month],
-          ['전체 누적', stats.total],
-          ['고유 방문자', stats.uniqueVisitors],
+          ['방문 수', n(stats.total)],
+          ['고유 방문자', n(stats.uniqueVisitors)],
+          ['서비스 이동 클릭', n(stats.exits.total)],
+          ['이동한 사람', `${n(stats.exits.visitors)} (${pct(stats.exits.visitors, stats.uniqueVisitors)})`],
         ].map(([label, value]) => (
-          <div key={label as string} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <p className="text-[11px] text-[var(--muted)]">{label}</p>
-            <p className="serif text-3xl gold-text font-bold mt-1">{n(value as number)}</p>
+            <p className="serif text-3xl gold-text font-bold mt-1">{value}</p>
           </div>
         ))}
       </div>
 
-      {/* 일별 / 시간별 */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="📅 최근 14일 방문">
-          <div className="flex items-end gap-1.5 h-36">
-            {stats.days.map((d) => (
-              <div key={d.label} className="flex-1 flex flex-col items-center justify-end h-full gap-1">
-                <span className="text-[10px] text-[var(--muted)]">{d.count || ''}</span>
-                <div
-                  className={`w-full rounded-t ${d.isToday ? 'bg-amber-300' : 'bg-indigo-400/70'}`}
-                  style={{ height: `${Math.max(3, (d.count / maxDay) * 100)}%` }}
-                />
-                <span className={`text-[9px] ${d.isToday ? 'text-amber-300 font-bold' : 'text-[var(--muted)]'}`}>{d.label}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card title="🕐 오늘 시간대별 방문" note="0~23시 KST">
-          <div className="flex items-end gap-[3px] h-36">
-            {stats.hours.map((c, h) => (
-              <div key={h} className="flex-1 flex flex-col items-center justify-end h-full gap-1" title={`${h}시 ${c}회`}>
-                <div className="w-full rounded-t bg-indigo-400/70" style={{ height: `${Math.max(2, (c / maxHour) * 100)}%` }} />
-                {h % 3 === 0 && <span className="text-[9px] text-[var(--muted)]">{h}</span>}
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      <Card title={`📊 방문 추이 · ${cur.desc}`}>
+        <div className="flex items-end gap-[3px] sm:gap-1.5 h-40">
+          {stats.buckets.map((b, i) => (
+            <div key={`${b.label}-${i}`} className="flex-1 flex flex-col items-center justify-end h-full gap-1 min-w-0" title={`${b.label} ${b.count}회`}>
+              {!dense && <span className="text-[10px] text-[var(--muted)]">{b.count || ''}</span>}
+              <div
+                className={`w-full rounded-t ${b.isCurrent ? 'bg-amber-300' : 'bg-indigo-400/70'}`}
+                style={{ height: `${Math.max(2, (b.count / max) * 100)}%` }}
+              />
+              {(!dense || i % 3 === 0 || b.isCurrent) && (
+                <span className={`text-[9px] whitespace-nowrap ${b.isCurrent ? 'text-amber-300 font-bold' : 'text-[var(--muted)]'}`}>{b.label}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {/* 어느 채널로 들어오고, 어느 서비스로 넘어가나 */}
-      <Card title="📡 유입 채널 → 서비스 이동" note="방문 수 기준 · 이동 = 마켓/세금환급/텔레콤 링크 클릭">
+      <Card title="📡 유입 채널 → 서비스 이동" note="이동 = 마켓/세금환급/텔레콤 링크 클릭">
         {stats.channels.length === 0 ? (
-          <Empty>아직 방문 기록이 없습니다.</Empty>
+          <Empty>이 기간의 방문 기록이 없습니다.</Empty>
         ) : (
           <Table
             head={
               <>
                 <Th>채널</Th>
-                <Th right>오늘</Th>
-                <Th right>7일</Th>
                 <Th right>방문</Th>
+                <Th right>점유율</Th>
                 <Th right>이동 클릭</Th>
                 <Th right>이동한 사람</Th>
               </>
@@ -151,9 +159,8 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
             {stats.channels.map((c: ChannelRow) => (
               <tr key={c.key}>
                 <Td strong>{c.key}</Td>
-                <Td right>{n(c.today)}</Td>
-                <Td right>{n(c.week)}</Td>
                 <Td right strong>{n(c.total)}</Td>
+                <Td right>{pct(c.total, stats.total)}</Td>
                 <Td right>{n(c.exits)}</Td>
                 <Td right>{n(c.exitVisitors)}</Td>
               </tr>
@@ -163,15 +170,16 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="🚪 어느 서비스로 넘어갔나" note={`이동 클릭 ${n(stats.exits.total)}회 (오늘 ${n(stats.exits.today)} · 7일 ${n(stats.exits.week)})`}>
+        <Card title="🚪 어느 서비스로 넘어갔나" note={`이동 클릭 ${n(stats.exits.total)}회`}>
           {stats.exits.byTarget.length === 0 ? (
-            <Empty>아직 서비스 이동 기록이 없습니다.</Empty>
+            <Empty>이 기간의 서비스 이동 기록이 없습니다.</Empty>
           ) : (
-            <Table head={<><Th>서비스</Th><Th right>클릭</Th></>}>
+            <Table head={<><Th>서비스</Th><Th right>클릭</Th><Th right>비율</Th></>}>
               {stats.exits.byTarget.map((t) => (
                 <tr key={t.key}>
                   <Td strong>{TARGET_NAMES[t.key] ?? t.key}</Td>
                   <Td right strong>{n(t.count)}</Td>
+                  <Td right>{pct(t.count, stats.exits.total)}</Td>
                 </tr>
               ))}
             </Table>
@@ -180,14 +188,14 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
 
         <Card title="🌐 허브 언어별 방문" note="방문 주소의 언어 기준">
           {stats.languages.length === 0 ? (
-            <Empty>아직 방문 기록이 없습니다.</Empty>
+            <Empty>이 기간의 방문 기록이 없습니다.</Empty>
           ) : (
-            <Table head={<><Th>언어</Th><Th right>7일</Th><Th right>전체</Th></>}>
+            <Table head={<><Th>언어</Th><Th right>방문</Th><Th right>비율</Th></>}>
               {stats.languages.map((l: Count) => (
                 <tr key={l.key}>
                   <Td strong>{langName(l.key)}</Td>
-                  <Td right>{n(l.week)}</Td>
                   <Td right strong>{n(l.total)}</Td>
+                  <Td right>{pct(l.total, stats.total)}</Td>
                 </tr>
               ))}
             </Table>
@@ -200,15 +208,14 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
         note={stats.unknownCountry > 0 ? `국가 기록 없음 ${n(stats.unknownCountry)}회 (이전 방문 등)` : undefined}
       >
         {stats.countries.length === 0 ? (
-          <Empty>아직 국가가 기록된 방문이 없습니다.</Empty>
+          <Empty>이 기간에 국가가 기록된 방문이 없습니다.</Empty>
         ) : (
-          <Table head={<><Th>국가</Th><Th right>오늘</Th><Th right>7일</Th><Th right>전체</Th><Th right>고유방문자</Th></>}>
+          <Table head={<><Th>국가</Th><Th right>방문</Th><Th right>비율</Th><Th right>고유방문자</Th></>}>
             {stats.countries.slice(0, 40).map((c) => (
               <tr key={c.key}>
                 <Td strong>{countryLabel(c.key)}</Td>
-                <Td right>{n(c.today)}</Td>
-                <Td right>{n(c.week)}</Td>
                 <Td right strong>{n(c.total)}</Td>
+                <Td right>{pct(c.total, stats.total - stats.unknownCountry)}</Td>
                 <Td right>{n(c.visitors)}</Td>
               </tr>
             ))}
@@ -219,16 +226,14 @@ export default function AdminDashboard({ stats }: { stats: HubStats }) {
       <Card title="📣 광고(캠페인)별 유입" note={`태그 있음 ${n(stats.total - stats.untagged)} / 태그 없음 ${n(stats.untagged)}`}>
         {stats.campaigns.length === 0 ? (
           <Empty>
-            광고 태그가 붙은 방문이 없습니다. 광고 링크 끝에 <span className="font-mono">?utm_source=youtube&amp;utm_medium=post&amp;utm_campaign=이름</span> 을 붙이세요.
+            이 기간에 광고 태그가 붙은 방문이 없습니다. 광고 링크 끝에 <span className="font-mono">?utm_source=youtube&amp;utm_medium=post&amp;utm_campaign=이름</span> 을 붙이세요.
           </Empty>
         ) : (
-          <Table head={<><Th>캠페인</Th><Th>소스 / 매체</Th><Th right>오늘</Th><Th right>7일</Th><Th right>전체</Th><Th right>고유방문자</Th></>}>
+          <Table head={<><Th>캠페인</Th><Th>소스 / 매체</Th><Th right>방문</Th><Th right>고유방문자</Th></>}>
             {stats.campaigns.slice(0, 50).map((c) => (
               <tr key={`${c.source}|${c.medium}|${c.campaign}`}>
                 <Td strong>{c.campaign || '(캠페인 없음)'}</Td>
                 <Td>{c.source || '-'} / {c.medium || '-'}</Td>
-                <Td right>{n(c.today)}</Td>
-                <Td right>{n(c.week)}</Td>
                 <Td right strong>{n(c.total)}</Td>
                 <Td right>{n(c.visitors)}</Td>
               </tr>
