@@ -1,7 +1,7 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // Nội dung giới thiệu chi tiết (tiếng Việt). Chỉ ghi các tính năng đã được xác nhận trong mã nguồn.
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: 'Đồ cũ', tax: 'Hoàn thuế', telecom: 'Điện thoại & mạng' },
   featuresLabel: 'Tính năng chính',
   forWhoLabel: 'Phù hợp với',

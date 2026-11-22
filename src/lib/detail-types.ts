@@ -41,3 +41,10 @@ export interface DetailCopy {
   /** 맨 아래 안내: 서비스 내용·요금은 각 서비스에서 최종 확인 */
   disclaimer: string;
 }
+
+/** 언어별 파일(ko.ts 등)에 적힌 세 서비스 문구. KTRS HOME 문구(home.ts)는 index.ts 에서 합친다 */
+type BaseServiceId = Exclude<ServiceId, 'home'>;
+export interface BaseDetailCopy extends Omit<DetailCopy, 'services' | 'nav'> {
+  services: Record<BaseServiceId, ServiceDetailCopy>;
+  nav: Record<BaseServiceId, string>;
+}

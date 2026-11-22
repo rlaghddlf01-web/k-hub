@@ -1,7 +1,7 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // Подробные описания (русский). Указаны только функции, подтверждённые в коде.
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: 'Б/у вещи', tax: 'Возврат налога', telecom: 'Связь' },
   featuresLabel: 'Основные возможности',
   forWhoLabel: 'Кому подойдёт',

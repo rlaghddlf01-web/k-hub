@@ -1,6 +1,7 @@
-import type { Lang } from '@/lib/langs';
+import { HOME } from '@/lib/detail/home';
+import { LANG_CODES, type Lang } from '@/lib/langs';
 
-// 허브 화면 문구 (17개국어). 서비스 이름(KTRS 마켓·Korea Tax Refund Service·K-Telecom)은 번역하지 않고 services.ts 에서 그대로 쓴다.
+// 허브 화면 문구 (17개국어). 서비스 이름(KTRS 마켓·Korea Tax Refund Service·K-Telecom·KTRS HOME)은 번역하지 않고 services.ts 에서 그대로 쓴다.
 // ※ 번역은 초안입니다. 정식 공개 전에 각 언어 원어민 검수를 권장합니다.
 export interface Copy {
   tagline: string;
@@ -9,6 +10,7 @@ export interface Copy {
   market: string;
   tax: string;
   telecom: string;
+  home: string;
   go: string;
   footer: string;
   /** 브라우저 언어 추천 문구: '{lang}' 자리에 언어 이름이 들어간다 */
@@ -57,7 +59,7 @@ export const STAT_LABELS: Record<Lang, { services: string; languages: string }> 
   ur: { services: 'سروسز', languages: 'زبانیں' },
 };
 
-export const COPY: Record<Lang, Copy> = {
+const BASE_COPY: Record<Lang, Omit<Copy, 'home'>> = {
   ko: {
     tagline: '한국 생활, 한 곳에서 시작하세요',
     sub: '중고거래 · 세금 환급 · 휴대폰 개통을 내 모국어로',
@@ -246,3 +248,8 @@ export const COPY: Record<Lang, Copy> = {
     switchTo: '{lang} میں دیکھیں',
   },
 };
+
+// KTRS HOME 카드 한 줄과, 네 서비스를 모두 적은 히어로 부제는 detail/home.ts 에 있다
+export const COPY: Record<Lang, Copy> = Object.fromEntries(
+  LANG_CODES.map((l) => [l, { ...BASE_COPY[l], sub: HOME[l].sub, home: HOME[l].card }]),
+) as Record<Lang, Copy>;

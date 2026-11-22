@@ -1,8 +1,8 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // 상세 소개 문구 (한국어 원문). 코드에서 실제로 확인된 기능만 적었습니다.
 // 가격·수수료·"1등"·"공식"·"정부" 같은 확인되지 않은 홍보 문구는 일부러 넣지 않았습니다.
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: '중고거래', tax: '세금 환급', telecom: '휴대폰·통신' },
   featuresLabel: '주요 기능',
   forWhoLabel: '이런 분께 좋아요',

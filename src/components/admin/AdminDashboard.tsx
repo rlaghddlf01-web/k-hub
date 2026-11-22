@@ -7,6 +7,7 @@ const TARGET_NAMES: Record<string, string> = {
   market: '🛒 KTRS 마켓',
   tax: '💰 Korea Tax Refund Service',
   telecom: '📱 K-Telecom',
+  home: '🏠 KTRS HOME',
 };
 
 function countryLabel(code: string): string {

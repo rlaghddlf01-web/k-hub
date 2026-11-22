@@ -1,7 +1,7 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // 詳細紹介文 (日本語)。コードで確認できた機能のみを記載しています。
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: '中古取引', tax: '税金還付', telecom: '携帯・通信' },
   featuresLabel: '主な機能',
   forWhoLabel: 'こんな方におすすめ',

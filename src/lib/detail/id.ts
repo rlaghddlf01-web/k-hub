@@ -1,6 +1,6 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: "Barang bekas", tax: "Pengembalian pajak", telecom: "Ponsel & paket" },
   featuresLabel: "Fitur utama",
   forWhoLabel: "Cocok untuk",

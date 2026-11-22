@@ -1,7 +1,7 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // ข้อความแนะนำโดยละเอียด (ภาษาไทย) ระบุเฉพาะฟีเจอร์ที่ยืนยันแล้วในโค้ดเท่านั้น
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: 'ของมือสอง', tax: 'ขอคืนภาษี', telecom: 'มือถือ·เครือข่าย' },
   featuresLabel: 'ฟีเจอร์หลัก',
   forWhoLabel: 'เหมาะกับใคร',

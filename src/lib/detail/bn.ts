@@ -1,6 +1,6 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: 'ব্যবহৃত পণ্য', tax: 'কর ফেরত', telecom: 'ফোন ও প্ল্যান' },
   featuresLabel: 'প্রধান সুবিধা',
   forWhoLabel: 'যাঁদের জন্য উপযোগী',

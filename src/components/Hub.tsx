@@ -57,7 +57,7 @@ export default function Hub({ lang }: { lang: Lang }) {
     }
   };
 
-  const [market, tax, telecom] = SERVICES;
+  const [market, tax, telecom, home] = SERVICES;
 
   return (
     <main className="overflow-x-clip bg-[#faf7f0] text-slate-900">
@@ -146,16 +146,19 @@ export default function Hub({ lang }: { lang: Lang }) {
             <ChevronDown className="h-5 w-5" />
           </a>
 
-          {/* 실제 서비스 화면 3개 */}
-          <div className="relative mx-auto mt-14 flex max-w-3xl items-end justify-center gap-0 px-2 sm:mt-20">
+          {/* 실제 서비스 화면 4개: 바깥 둘은 작게 기울이고, 가운데 둘은 크게 띄운다 */}
+          <div className="relative mx-auto mt-14 flex max-w-4xl items-end justify-center gap-0 px-2 sm:mt-20">
             <div className="pointer-events-none absolute inset-x-8 bottom-0 -z-10 h-2/3 rounded-full bg-amber-300/15 blur-3xl" />
-            <div className="float-b -me-5 w-[29%] origin-bottom -rotate-6 sm:-me-8">
+            <div className="float-b -me-4 w-[23%] origin-bottom -rotate-[8deg] sm:-me-7">
               <Phone service={market} />
             </div>
-            <div className="float-a relative z-10 w-[36%] -translate-y-6 sm:-translate-y-10">
+            <div className="float-a relative z-10 w-[28%] -translate-y-5 -rotate-2 sm:-translate-y-9">
               <Phone service={tax} />
             </div>
-            <div className="float-c -ms-5 w-[29%] origin-bottom rotate-6 sm:-ms-8">
+            <div className="float-c relative z-10 -ms-3 w-[28%] -translate-y-5 rotate-2 sm:-ms-5 sm:-translate-y-9">
+              <Phone service={home} />
+            </div>
+            <div className="float-b -ms-4 w-[23%] origin-bottom rotate-[8deg] sm:-ms-7">
               <Phone service={telecom} />
             </div>
           </div>
@@ -217,7 +220,7 @@ export default function Hub({ lang }: { lang: Lang }) {
           <p className="mx-auto mt-4 max-w-xl text-center text-sm text-slate-500 sm:text-base">{copy.footer}</p>
         </Reveal>
 
-        <div className="mx-auto mt-12 grid max-w-6xl gap-7 md:grid-cols-3">
+        <div className="mx-auto mt-12 grid max-w-6xl gap-7 md:grid-cols-2 xl:grid-cols-4">
           {SERVICES.map((s, i) => (
             <Reveal key={s.id} delay={i * 90}>
               <a

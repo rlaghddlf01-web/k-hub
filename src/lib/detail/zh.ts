@@ -1,7 +1,7 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // 详细介绍文案（简体中文）。仅列出在代码中确认过的功能。
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: '二手交易', tax: '退税', telecom: '手机·通信' },
   featuresLabel: '主要功能',
   forWhoLabel: '适合这些人',

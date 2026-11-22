@@ -1,6 +1,6 @@
 # KTRS 허브
 
-KTRS 서비스 3개(KTRS 마켓 · Korea Tax Refund Service · K-Telecom)로 사용자를 나눠 보내는 **안내 전용 첫 화면**입니다.
+KTRS 서비스 4개(KTRS 마켓 · Korea Tax Refund Service · K-Telecom · KTRS HOME)로 사용자를 나눠 보내는 **안내 전용 첫 화면**입니다.
 회원가입·로그인은 없습니다. 각 서비스 주소로 연결만 합니다.
 
 ## 주소

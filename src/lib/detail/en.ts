@@ -1,8 +1,8 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
 // Detailed descriptions (English). Only features confirmed in the code are listed.
 // Prices, fees, "No.1", "official" and "government" style claims are intentionally left out.
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: 'Second-hand', tax: 'Tax refund', telecom: 'Phone & plans' },
   featuresLabel: 'Key features',
   forWhoLabel: 'Good for',

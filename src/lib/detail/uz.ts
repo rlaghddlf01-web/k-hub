@@ -1,6 +1,6 @@
-import type { DetailCopy } from '../detail-types';
+import type { BaseDetailCopy } from '../detail-types';
 
-export const detail: DetailCopy = {
+export const detail: BaseDetailCopy = {
   nav: { market: "Ishlatilgan buyumlar", tax: "Soliq qaytarish", telecom: "Telefon va tariflar" },
   featuresLabel: "Asosiy imkoniyatlar",
   forWhoLabel: "Quyidagilar uchun qulay",

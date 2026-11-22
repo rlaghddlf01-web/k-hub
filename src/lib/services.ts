@@ -1,6 +1,6 @@
 import { DEFAULT_LANG, LANG_CODES, type Lang } from '@/lib/langs';
 
-export type ServiceId = 'market' | 'tax' | 'telecom';
+export type ServiceId = 'market' | 'tax' | 'telecom' | 'home';
 
 export interface Service {
   id: ServiceId;
@@ -49,6 +49,16 @@ export const SERVICES: Service[] = [
     accent: '#e11d48',
     shot: '/shots/telecom.webp',
     path: prefixPath,
+  },
+  {
+    id: 'home',
+    name: 'KTRS HOME',
+    url: 'https://ktrs-home.vercel.app',
+    langs: LANG_CODES,
+    accent: '#0f766e',
+    shot: '/shots/home.webp',
+    // KTRS HOME 은 한국어도 '/ko' 로 받는다 ('/' 는 처음 온 사람에게 언어 선택 창을 띄운다)
+    path: (lang) => `/${lang}`,
   },
 ];
 
