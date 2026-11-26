@@ -355,6 +355,9 @@ export default function Hub({ lang }: { lang: Lang }) {
               {labels.name}: {COMPANY.name} · {labels.ceo}: {COMPANY.ceo}
             </p>
             <p>
+              {labels.bizNumber}: {COMPANY.bizNumber} · {labels.salesNumber}: {COMPANY.salesNumber}
+            </p>
+            <p>
               {labels.address}: {COMPANY.address}
             </p>
             <p>
