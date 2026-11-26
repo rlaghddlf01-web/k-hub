@@ -12,6 +12,7 @@ import ServiceDetail from '@/components/ServiceDetail';
 import { BRAND } from '@/lib/brand';
 import { CHOOSE_COPY, COPY, STAT_LABELS } from '@/lib/copy';
 import { getDetail } from '@/lib/detail';
+import { COMPANY, COMPANY_LABELS } from '@/lib/company';
 import { LANGS, flagUrl, fromBrowserLang, hubPath, langInfo, type Lang } from '@/lib/langs';
 import { SERVICES, buildServiceHref, type Service } from '@/lib/services';
 import { getVisitorId } from '@/lib/visitor';
@@ -19,6 +20,7 @@ import { getVisitorId } from '@/lib/visitor';
 export default function Hub({ lang }: { lang: Lang }) {
   const copy = COPY[lang];
   const detail = getDetail(lang);
+  const labels = COMPANY_LABELS[lang];
   const stat = STAT_LABELS[lang];
   const current = langInfo(lang);
 
@@ -346,7 +348,25 @@ export default function Hub({ lang }: { lang: Lang }) {
           </div>
 
           <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-amber-300/30 to-transparent" />
+
+          {/* 사업자 정보 (K-Telecom 푸터와 동일, 전화번호 제외) */}
+          <address className="mt-6 space-y-1 text-xs not-italic leading-relaxed text-slate-400">
+            <p>
+              {labels.name}: {COMPANY.name} · {labels.ceo}: {COMPANY.ceo}
+            </p>
+            <p>
+              {labels.address}: {COMPANY.address}
+            </p>
+            <p>
+              {labels.email}:{' '}
+              <a href={`mailto:${COMPANY.email}`} className="underline-offset-2 hover:text-white hover:underline">
+                {COMPANY.email}
+              </a>
+            </p>
+          </address>
+
           <p className="mt-6 max-w-3xl text-xs leading-relaxed text-slate-500">{detail.disclaimer}</p>
+          <p className="mt-4 text-xs text-slate-600">© {new Date().getFullYear()} {COMPANY.name}. All Rights Reserved.</p>
         </div>
       </footer>
     </main>
