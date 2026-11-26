@@ -1,9 +1,9 @@
 import type { Lang } from '@/lib/langs';
 
-// 하단 사업자 정보: K-Telecom(k-telecom.vercel.app) 푸터와 같은 내용 (전화번호만 제외).
+// 하단 사업자 정보: 상호는 더윤컴퍼니, 대표·주소·이메일은 K-Telecom(k-telecom.vercel.app) 푸터와 같은 내용 (전화번호는 제외).
 // 법적 표기는 번역하지 않고 한국어 원문 그대로 둔다. 바꿀 때는 이 파일만 고치면 됩니다.
 export const COMPANY = {
-  name: 'K-Telecom(케이텔레콤)',
+  name: '더윤컴퍼니',
   ceo: '김홍일',
   address: '경기도 남양주시 부평로 48번길 140, 107-1102',
   email: 'zkfnrh01@naver.com',
