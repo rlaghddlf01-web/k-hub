@@ -365,9 +365,7 @@ export default function Hub({ lang }: { lang: Lang }) {
             </p>
           </address>
 
-          <p className="mt-6 max-w-3xl text-xs leading-relaxed text-slate-500">{detail.disclaimer}</p>
-          <p className="mt-4 text-xs text-slate-600">© {new Date().getFullYear()} {COMPANY.name}. All Rights Reserved.</p>
-        </div>
+          <p className="mt-6 max-w-3xl text-xs leading-relaxed text-slate-500">{detail.disclaimer}</p>        </div>
       </footer>
     </main>
   );
